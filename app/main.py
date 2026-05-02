@@ -15,14 +15,20 @@ def main():
         print(f"Received data: {data.decode('utf-8')}")
         
         #Extract the path from the request line
-        request_line = data.decode('utf-8').split('\r\n')[0]
+        all_request_lines = data.decode('utf-8').split('\r\n')
+        request_line = all_request_lines[0]
         method, path, version = request_line.split()
-
+        headers_list = all_request_lines[1:all_request_lines.index("")]
+        headers_dict = {header.split(":")[0]: header.split(":")[1] for header in headers_list}
+        body_list = all_request_lines[all_request_lines.index("")+1:]
+        body_dict = {body_line.split(":")[0]: body_line.split(":")[1] for body_line in body_list}
         match path.split("/"):
             case ["",""]:
                 response = "HTTP/1.1 200 OK\r\n\r\n"
             case ["", "echo", value]:
                 response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\n\r\n{value}"
+            case ["", "user-agent"]:
+                response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(headers_dict['User-Agent'])}\r\n\r\n{headers_dict['User-Agent']}"
             case _:
                 response = "HTTP/1.1 404 Not Found\r\n\r\n"
         connection.sendall(response.encode("utf-8"))
