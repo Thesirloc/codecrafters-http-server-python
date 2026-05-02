@@ -19,9 +19,9 @@ def main():
         request_line = all_request_lines[0]
         method, path, version = request_line.split()
         headers_list = all_request_lines[1:all_request_lines.index("")]
-        headers_dict = {header.split(":")[0]: header.split(":")[1] for header in headers_list}
+        headers_dict = {h.split(":", 1)[0].strip(): h.split(":", 1)[1].strip() for h in headers_list if ":" in h}
         body_list = all_request_lines[all_request_lines.index("")+1:]
-        body_dict = {body_line.split(":")[0]: body_line.split(":")[1] for body_line in body_list}
+        body_dict = {b.split(":", 1)[0].strip(): b.split(":", 1)[1].strip() for b in body_list if ":" in b}
         match path.split("/"):
             case ["",""]:
                 response = "HTTP/1.1 200 OK\r\n\r\n"
