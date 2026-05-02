@@ -17,11 +17,16 @@ def main():
         #Extract the path from the request line
         request_line = data.decode('utf-8').split('\r\n')[0]
         method, path, version = request_line.split()
-        if path == "/":
-            response = "HTTP/1.1 200 OK\r\n\r\n"
-        else:
-            response = "HTTP/1.1 404 Not Found\r\n\r\n"
+
+        match path.split("/"):
+            case [""]:
+                response = "HTTP/1.1 200 OK\r\n\r\n"
+            case ["", "echo", value]:
+                response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\n\r\n{value}"
+            case _:
+                response = "HTTP/1.1 404 Not Found\r\n\r\n"
         connection.sendall(response.encode("utf-8"))
+
 
 if __name__ == "__main__":
     main()
