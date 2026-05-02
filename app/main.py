@@ -19,7 +19,7 @@ def main():
         method, path, version = request_line.split()
 
         match path.split("/"):
-            case [""]:
+            case ["",""]:
                 response = "HTTP/1.1 200 OK\r\n\r\n"
             case ["", "echo", value]:
                 response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\n\r\n{value}"
