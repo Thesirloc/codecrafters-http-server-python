@@ -11,9 +11,11 @@ def main():
 
 def start_server():
     with socket.create_server(("localhost", 4221)) as server_socket:
-        connection, address = server_socket.accept() # wait for client
-        print(f"Client connected at {address}")
-        threading.Thread(target=handle_client, args=(connection, address)).start()
+        print("Server started at localhost:4221")
+        while True:
+            connection, address = server_socket.accept() # wait for client
+            print(f"Client connected at {address}")
+            threading.Thread(target=handle_client, args=(connection, address)).start()
 
 def handle_client(connection, address):
     data = connection.recv(1024)
