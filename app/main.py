@@ -39,6 +39,7 @@ def handle_client(connection, address):
         case _:
             response = "HTTP/1.1 404 Not Found\r\n\r\n"
     connection.sendall(response.encode("utf-8"))
+    connection.close()
 
 if __name__ == "__main__":
     main()
