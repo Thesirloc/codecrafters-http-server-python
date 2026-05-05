@@ -70,7 +70,8 @@ def post_request(path, headers_dict, body_list):
         case ["", "files", value]:
             file_path = os.path.join(root_directory, value)
             with open(file_path, "w") as f:
-                f.writelines(body_list)
+                content = "".join(body_list)
+                f.write(content)
             response = "HTTP/1.1 201 Created\r\n\r\n"
         case _:
             response = "HTTP/1.1 404 Not Found\r\n\r\n"
