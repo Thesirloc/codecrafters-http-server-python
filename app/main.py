@@ -69,7 +69,7 @@ def post_request(path, headers_dict, body_list):
     match path.split("/"):
         case ["", "files", value]:
             file_path = os.path.join(root_directory, value)
-            with open(file_path, "w") as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 content = "".join(body_list)
                 f.write(content)
             response = "HTTP/1.1 201 Created\r\n\r\n"
