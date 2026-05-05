@@ -40,7 +40,7 @@ def handle_client(connection, address):
         case "GET":
             response = get_request(path, headers_dict)
         case "POST":
-            response = post_request(path, headers_dict, body_dict)
+            response = post_request(path, headers_dict, body_list)
         case _:
             response = "HTTP/1.1 405 Method Not Allowed\r\n\r\n"
     connection.sendall(response.encode("utf-8"))
