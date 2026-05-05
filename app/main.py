@@ -51,7 +51,7 @@ def handle_client(connection, address):
             path = os.path.join(root_directory, value)
             if os.path.exists(path):
                 content = serve_file(path)
-                response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(content)}\r\n\r\n{content}"
+                response = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {len(content)}\r\n\r\n{content}"
             else:
                 response = "HTTP/1.1 404 Not Found\r\n\r\n"
         case _:
