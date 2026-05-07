@@ -60,12 +60,12 @@ def get_request(path, headers_dict):
                 status_code = "200 OK"
                 content = value
                 compressed_content = gzip.compress(content.encode("utf-8"))
-                response = status_code, headers, compressed_content
                 headers = {
                     "Content-Type": "text/plain",
                     "Content-Length": len(compressed_content),
                     "Content-Encoding": "gzip"
                 }
+                response = status_code, headers, compressed_content
                 # response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\nContent-Encoding: gzip\r\n\r\n{value}"
             else:
                 status_code = "200 OK"
