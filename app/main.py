@@ -20,7 +20,7 @@ def main():
     
 def start_server():
     with socket.create_server(("localhost", 4221)) as server_socket:
-        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1) #keep the connectoin alive for subsequent requests
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1) #keep the connection alive for subsequent requests
         print("Server started at localhost:4221")
         while True:
             connection, address = server_socket.accept() # wait for client
@@ -28,25 +28,26 @@ def start_server():
             threading.Thread(target=handle_client, args=(connection, address)).start()
 
 def handle_client(connection, address):
-    data = connection.recv(1024)
-    print(f"Received data: {data.decode('utf-8')}")
-    #Extract the path from the request line
-    all_request_lines = data.decode('utf-8').split('\r\n')
-    request_line = all_request_lines[0]
-    method, path, version = request_line.split()
-    headers_list = all_request_lines[1:all_request_lines.index("")]
-    headers_dict = {h.split(":", 1)[0].strip(): h.split(":", 1)[1].strip() for h in headers_list if ":" in h}
-    body_list = all_request_lines[all_request_lines.index("")+1:]
-    body_dict = {b.split(":", 1)[0].strip(): b.split(":", 1)[1].strip() for b in body_list if ":" in b}
-    match method:
-        case "GET":
-            response = create_response(*get_request(path, headers_dict))
-        case "POST":
-            response = create_response(*post_request(path, headers_dict, body_list))
-        case _:
-            response = create_response("405 Method Not Allowed", {}, "")
-    connection.sendall(response)
-    # connection.close()
+    while True:
+        data = connection.recv(1024)
+        print(f"Received data: {data.decode('utf-8')}")
+        #Extract the path from the request line
+        all_request_lines = data.decode('utf-8').split('\r\n')
+        request_line = all_request_lines[0]
+        method, path, version = request_line.split()
+        headers_list = all_request_lines[1:all_request_lines.index("")]
+        headers_dict = {h.split(":", 1)[0].strip(): h.split(":", 1)[1].strip() for h in headers_list if ":" in h}
+        body_list = all_request_lines[all_request_lines.index("")+1:]
+        body_dict = {b.split(":", 1)[0].strip(): b.split(":", 1)[1].strip() for b in body_list if ":" in b}
+        match method:
+            case "GET":
+                response = create_response(*get_request(path, headers_dict))
+            case "POST":
+                response = create_response(*post_request(path, headers_dict, body_list))
+            case _:
+                response = create_response("405 Method Not Allowed", {}, "")
+        connection.sendall(response)
+        # connection.close()
 
 def get_request(path, headers_dict):
     match path.split("/"):
