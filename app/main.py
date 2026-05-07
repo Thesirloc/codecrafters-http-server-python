@@ -1,4 +1,3 @@
-from genericpath import exists
 import socket  # noqa: F401
 import threading
 import os
@@ -32,45 +31,37 @@ def handle_client(connection, address):
         data = connection.recv(1024)
         if not data:
             break
-        print(f"Received data: {data.decode('utf-8')}")
-        #Extract the path from the request line
-        all_request_lines = data.decode('utf-8').split('\r\n')
+
+        decoded_data = data.decode("utf-8")
+        print(f"Received data: {decoded_data}")
+
+        # Extract the path from the request line
+        all_request_lines = decoded_data.split("\r\n")
         request_line = all_request_lines[0]
-        method, path, version = request_line.split()
+        method, path, _version = request_line.split()
         headers_list = all_request_lines[1:all_request_lines.index("")]
         headers_dict = {h.split(":", 1)[0].strip(): h.split(":", 1)[1].strip() for h in headers_list if ":" in h}
-        body_list = all_request_lines[all_request_lines.index("")+1:]
-        body_dict = {b.split(":", 1)[0].strip(): b.split(":", 1)[1].strip() for b in body_list if ":" in b}
-        should_close_connection = "Connection" in headers_dict and headers_dict["Connection"] == "close"
+        body_list = all_request_lines[all_request_lines.index("") + 1:]
+
+        should_close_connection = headers_dict.get("Connection", "").lower() == "close"
+
         match method:
             case "GET":
-                if should_close_connection:
-                    status_code, headers, content = get_request(path, headers_dict)
-                    headers["Connection"] = "close"
-                    response = create_response(status_code, headers, content)
-                else:
-                    response = create_response(*get_request(path, headers_dict))
+                status_code, headers, content = get_request(path, headers_dict)
             case "POST":
-                if should_close_connection:
-                    status_code, headers, content = post_request(path, headers_dict, body_list)
-                    headers["Connection"] = "close"
-                    response = create_response(status_code, headers, content)
-                else:
-                    response = create_response(*post_request(path, headers_dict, body_list))
+                status_code, headers, content = post_request(path, headers_dict, body_list)
             case _:
-                if should_close_connection:
-                    status_code = "405 Method Not Allowed"
-                    headers = {"Connection": "close"}
-                    content = ""
-                    response = create_response(status_code, headers, content)
-                else:
-                    response = create_response("405 Method Not Allowed", headers_dict, "")
+                status_code, headers, content = "405 Method Not Allowed", {}, ""
+
+        # Keep response and socket behavior in sync.
+        headers["Connection"] = "close" if should_close_connection else "keep-alive"
+        response = create_response(status_code, headers, content)
         connection.sendall(response)
+
         if should_close_connection:
-            connection.close()
             break
-        else:
-            continue
+
+    connection.close()
 
 def get_request(path, headers_dict):
     match path.split("/"):
@@ -167,11 +158,12 @@ def create_response(status_code, headers, content):
     for header, value in headers.items():
         response += f"{header}: {value}\r\n"
     response += "\r\n"
-    if "Content-Encoding" in headers and headers["Content-Encoding"] == "gzip":
-        response += content
+    response_bytes = response.encode("utf-8")
+    if isinstance(content, bytes):
+        response_bytes += content
     else:
-        response += content.encode("utf-8")
-    return response
+        response_bytes += content.encode("utf-8")
+    return response_bytes
 
 if __name__ == "__main__":
     main()
