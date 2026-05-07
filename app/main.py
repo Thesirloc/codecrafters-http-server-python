@@ -19,7 +19,7 @@ def main():
     start_server()
     
 def start_server():
-    with socket.create_server(("localhost", 4221)) as server_socket:
+    with socket.create_server(("localhost", 4221), keep_alive=True) as server_socket:
         print("Server started at localhost:4221")
         while True:
             connection, address = server_socket.accept() # wait for client
