@@ -58,14 +58,14 @@ def get_request(path, headers_dict):
         case ["", "echo", value]:
             if "Accept-Encoding" in headers_dict and "gzip" in headers_dict.get("Accept-Encoding").split(", "): 
                 status_code = "200 OK"
-                headers = {
-                    "Content-Type": "text/plain",
-                    "Content-Length": len(value),
-                    "Content-Encoding": "gzip"
-                }
                 content = value
                 compressed_content = gzip.compress(content.encode("utf-8"))
                 response = status_code, headers, compressed_content
+                headers = {
+                    "Content-Type": "text/plain",
+                    "Content-Length": len(compressed_content),
+                    "Content-Encoding": "gzip"
+                }
                 # response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\nContent-Encoding: gzip\r\n\r\n{value}"
             else:
                 status_code = "200 OK"
