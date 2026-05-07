@@ -45,13 +45,13 @@ def handle_client(connection, address):
             case "POST":
                 response = create_response(*post_request(path, headers_dict, body_list))
             case _:
-                response = create_response("405 Method Not Allowed", {}, "")
+                response = create_response("405 Method Not Allowed", headers_dict, content = "")
         connection.sendall(response)
         if "Connection" in headers_dict and headers_dict["Connection"] == "close":
-            connection.close()
+            connection.close() #close the connection if the client requests it
             break
         else:
-            continue
+            continue #continue the loop if the client requests to keep the connection alive
 
 def get_request(path, headers_dict):
     match path.split("/"):
