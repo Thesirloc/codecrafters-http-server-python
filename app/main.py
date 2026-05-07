@@ -104,7 +104,8 @@ def create_response(status_code, headers, content):
     response = f"HTTP/1.1 {status_code}\r\n"
     for header, value in headers.items():
         response += f"{header}: {value}\r\n"
-    return response
+    response += f"\r\n{content}"
+    return response.encode("utf-8")
 
 if __name__ == "__main__":
     main()
