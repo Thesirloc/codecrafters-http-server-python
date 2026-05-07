@@ -89,6 +89,14 @@ def get_request(path, headers_dict):
                 headers = {}
                 content = ""
                 response = status_code, headers, content
+        case ["", "user-agent"]:
+            status_code = "200 OK"
+            headers = {
+                "Content-Type": "text/plain",
+                "Content-Length": len(headers_dict.get("User-Agent"))
+            }
+            content = headers_dict.get("User-Agent")
+            response = status_code, headers, content
         case _:
             status_code = "404 Not Found"
             headers = {}
