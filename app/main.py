@@ -47,7 +47,11 @@ def handle_client(connection, address):
             case _:
                 response = create_response("405 Method Not Allowed", {}, "")
         connection.sendall(response)
-        connection.close() if "Connection" in headers_dict and headers_dict["Connection"] == "close"
+        if "Connection" in headers_dict and headers_dict["Connection"] == "close":
+            connection.close()
+            break
+        else:
+            continue
 
 def get_request(path, headers_dict):
     match path.split("/"):
