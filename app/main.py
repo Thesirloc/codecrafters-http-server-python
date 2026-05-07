@@ -48,7 +48,7 @@ def handle_client(connection, address):
     connection.close()
 
 def get_request(path, headers_dict):
-    response = None
+    response = "404 Not Found", {}, ""
     match path.split("/"):
         case ["",""]:
             status_code = "200 OK"
@@ -79,7 +79,7 @@ def get_request(path, headers_dict):
     return response
 
 def post_request(path, headers_dict, body_list):
-    response = None
+    response = "404 Not Found", {}, ""
     match path.split("/"):
         case ["", "files", value]:
             file_path = os.path.join(root_directory, value)
