@@ -3,6 +3,7 @@ import socket  # noqa: F401
 import threading
 import os
 import sys
+import gzip
 
 if "--directory" in sys.argv:
     root_directory = sys.argv[sys.argv.index("--directory") + 1]
