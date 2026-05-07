@@ -38,23 +38,42 @@ def handle_client(connection, address):
     body_dict = {b.split(":", 1)[0].strip(): b.split(":", 1)[1].strip() for b in body_list if ":" in b}
     match method:
         case "GET":
-            response = get_request(path, headers_dict)
+            response = create_response(get_request(path, headers_dict))
         case "POST":
-            response = post_request(path, headers_dict, body_list)
+            response = create_response(post_request(path, headers_dict, body_list))
         case _:
-            response = "HTTP/1.1 405 Method Not Allowed\r\n\r\n"
+            response = create_response("405 Method Not Allowed", {}, "")
     connection.sendall(response.encode("utf-8"))
     connection.close()
 
 def get_request(path, headers_dict):
     match path.split("/"):
         case ["",""]:
-            response = "HTTP/1.1 200 OK\r\n\r\n"
+            status_code = "200 OK"
+            headers = {}
+            content = ""
+            response = status_code, headers, content
+            # response = "HTTP/1.1 200 OK\r\n\r\n"
         case ["", "echo", value]:
             if "Accept-Encoding" in headers_dict and "gzip" in headers_dict.get("Accept-Encoding").split(", "): 
-                response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\nContent-Encoding: gzip\r\n\r\n{value}"
+                status_code = "200 OK"
+                headers = {
+                    "Content-Type": "text/plain",
+                    "Content-Length": len(value),
+                    "Content-Encoding": "gzip"
+                }
+                content = value
+                response = status_code, headers, content
+                # response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\nContent-Encoding: gzip\r\n\r\n{value}"
             else:
-                response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\n\r\n{value}"
+                status_code = "200 OK"
+                headers = {
+                    "Content-Type": "text/plain",
+                    "Content-Length": len(value)
+                }
+                content = value
+                response = status_code, headers, content
+                # response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\n\r\n{value}"
     return response
 
 def post_request(path, headers_dict, body_list):
@@ -64,9 +83,15 @@ def post_request(path, headers_dict, body_list):
             with open(file_path, "w", encoding="utf-8") as f:
                 content = "".join(body_list)
                 f.write(content)
-            response = "HTTP/1.1 201 Created\r\n\r\n"
+            status_code = "201 Created"
+            headers = {}
+            content = ""
+            response = status_code, headers, content
         case _:
-            response = "HTTP/1.1 404 Not Found\r\n\r\n"
+            status_code = "404 Not Found"
+            headers = {}
+            content = ""
+            response = status_code, headers, content
     return response
 
 
@@ -74,6 +99,12 @@ def post_request(path, headers_dict, body_list):
 def serve_file(path):
     with open(path, "r") as f:
         return f.read()
+
+def create_response(status_code, headers, content):
+    response = f"HTTP/1.1 {status_code}\r\n"
+    for header, value in headers.items():
+        response += f"{header}: {value}\r\n"
+    return response
 
 if __name__ == "__main__":
     main()
