@@ -36,7 +36,6 @@ def handle_client(connection, address):
     headers_dict = {h.split(":", 1)[0].strip(): h.split(":", 1)[1].strip() for h in headers_list if ":" in h}
     body_list = all_request_lines[all_request_lines.index("")+1:]
     body_dict = {b.split(":", 1)[0].strip(): b.split(":", 1)[1].strip() for b in body_list if ":" in b}
-    response = None
     match method:
         case "GET":
             response = create_response(*get_request(path, headers_dict))
@@ -48,7 +47,6 @@ def handle_client(connection, address):
     connection.close()
 
 def get_request(path, headers_dict):
-    response = "200 OK", {}, ""
     match path.split("/"):
         case ["",""]:
             status_code = "200 OK"
@@ -96,8 +94,12 @@ def get_request(path, headers_dict):
     return response
 
 def post_request(path, headers_dict, body_list):
-    response = "404 Not Found", {}, ""
     match path.split("/"):
+        case ["",""]:
+            status_code = "200 OK"
+            headers = {}
+            content = ""
+            response = status_code, headers, content
         case ["", "files", value]:
             file_path = os.path.join(root_directory, value)
             with open(file_path, "w", encoding="utf-8") as f:
