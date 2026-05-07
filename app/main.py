@@ -149,6 +149,8 @@ def create_response(status_code, headers, content):
         response += f"{header}: {value}\r\n"
     if "Connection" in headers and headers["Connection"] == "close":
         response += "Connection: close\r\n"
+    else:
+        response += "Connection: keep-alive\r\n"
     response += "\r\n"
     response = response.encode("utf-8")
     if "Content-Encoding" in headers and headers["Content-Encoding"] == "gzip":
