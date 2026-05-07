@@ -79,7 +79,7 @@ def get_request(path, headers_dict):
             if os.path.exists(file_path):
                 status_code = "200 OK"
                 headers = {
-                    "Content-Type": "text/plain",
+                    "Content-Type": "application/octet-stream",
                     "Content-Length": len(serve_file(file_path))
                 }
                 content = serve_file(file_path)
