@@ -141,8 +141,13 @@ def create_response(status_code, headers, content):
     response = f"HTTP/1.1 {status_code}\r\n"
     for header, value in headers.items():
         response += f"{header}: {value}\r\n"
-    response += f"\r\n{content}"
-    return response.encode("utf-8")
+    response += "\r\n"
+    response = response.encode("utf-8")
+    if "Content-Encoding" in headers and headers["Content-Encoding"] == "gzip":
+        response += content
+    else:
+        response += content.encode("utf-8")
+    return response
 
 if __name__ == "__main__":
     main()
