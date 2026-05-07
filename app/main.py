@@ -36,6 +36,7 @@ def handle_client(connection, address):
     headers_dict = {h.split(":", 1)[0].strip(): h.split(":", 1)[1].strip() for h in headers_list if ":" in h}
     body_list = all_request_lines[all_request_lines.index("")+1:]
     body_dict = {b.split(":", 1)[0].strip(): b.split(":", 1)[1].strip() for b in body_list if ":" in b}
+    response = None
     match method:
         case "GET":
             response = create_response(*get_request(path, headers_dict))
