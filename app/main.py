@@ -43,7 +43,7 @@ def handle_client(connection, address):
             response = create_response(*post_request(path, headers_dict, body_list))
         case _:
             response = create_response("405 Method Not Allowed", {}, "")
-    connection.sendall(response.encode("utf-8"))
+    connection.sendall(response)
     connection.close()
 
 def get_request(path, headers_dict):
