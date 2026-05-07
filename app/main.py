@@ -51,21 +51,10 @@ def get_request(path, headers_dict):
         case ["",""]:
             response = "HTTP/1.1 200 OK\r\n\r\n"
         case ["", "echo", value]:
-            if "gzip" in headers_dict.get("Accept-Encoding").split(", "): 
+            if "Accept-Encoding" in headers_dict and "gzip" in headers_dict.get("Accept-Encoding").split(", "): 
                 response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\nContent-Encoding: gzip\r\n\r\n{value}"
             else:
                 response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\n\r\n{value}"
-        case ["", "user-agent"]:
-            response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(headers_dict['User-Agent'])}\r\n\r\n{headers_dict['User-Agent']}"
-        case ["", "files", value]:
-            file_path = os.path.join(root_directory, value)
-            if os.path.exists(file_path):
-                content = serve_file(file_path)
-                response = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {len(content)}\r\n\r\n{content}"
-            else:
-                response = "HTTP/1.1 404 Not Found\r\n\r\n"
-        case _:
-            response = "HTTP/1.1 404 Not Found\r\n\r\n"
     return response
 
 def post_request(path, headers_dict, body_list):
