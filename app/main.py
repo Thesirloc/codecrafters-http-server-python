@@ -19,7 +19,8 @@ def main():
     start_server()
     
 def start_server():
-    with socket.create_server(("localhost", 4221), keep_alive=True) as server_socket:
+    with socket.create_server(("localhost", 4221)) as server_socket:
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1) #keep the connectoin alive for subsequent requests
         print("Server started at localhost:4221")
         while True:
             connection, address = server_socket.accept() # wait for client
@@ -45,7 +46,7 @@ def handle_client(connection, address):
         case _:
             response = create_response("405 Method Not Allowed", {}, "")
     connection.sendall(response)
-    # connection.close()
+    connection.close()
 
 def get_request(path, headers_dict):
     match path.split("/"):
