@@ -30,6 +30,8 @@ def start_server():
 def handle_client(connection, address):
     while True:
         data = connection.recv(1024)
+        if not data:
+            break
         print(f"Received data: {data.decode('utf-8')}")
         #Extract the path from the request line
         all_request_lines = data.decode('utf-8').split('\r\n')
@@ -39,19 +41,36 @@ def handle_client(connection, address):
         headers_dict = {h.split(":", 1)[0].strip(): h.split(":", 1)[1].strip() for h in headers_list if ":" in h}
         body_list = all_request_lines[all_request_lines.index("")+1:]
         body_dict = {b.split(":", 1)[0].strip(): b.split(":", 1)[1].strip() for b in body_list if ":" in b}
+        should_close_connection = "Connection" in headers_dict and headers_dict["Connection"] == "close"
         match method:
             case "GET":
-                response = create_response(*get_request(path, headers_dict))
+                if should_close_connection:
+                    status_code, headers, content = get_request(path, headers_dict)
+                    headers["Connection"] = "close"
+                    response = create_response(status_code, headers, content)
+                else:
+                    response = create_response(*get_request(path, headers_dict))
             case "POST":
-                response = create_response(*post_request(path, headers_dict, body_list))
+                if should_close_connection:
+                    status_code, headers, content = post_request(path, headers_dict, body_list)
+                    headers["Connection"] = "close"
+                    response = create_response(status_code, headers, content)
+                else:
+                    response = create_response(*post_request(path, headers_dict, body_list))
             case _:
-                response = create_response("405 Method Not Allowed", headers_dict, content = "")
+                if should_close_connection:
+                    status_code = "405 Method Not Allowed"
+                    headers = {"Connection": "close"}
+                    content = ""
+                    response = create_response(status_code, headers, content)
+                else:
+                    response = create_response("405 Method Not Allowed", headers_dict, "")
         connection.sendall(response)
-        if "Connection" in headers_dict and headers_dict["Connection"] == "close":
-            connection.close() #close the connection if the client requests it
+        if should_close_connection:
+            connection.close()
             break
         else:
-            continue #continue the loop if the client requests to keep the connection alive
+            continue
 
 def get_request(path, headers_dict):
     match path.split("/"):
@@ -147,12 +166,7 @@ def create_response(status_code, headers, content):
     response = f"HTTP/1.1 {status_code}\r\n"
     for header, value in headers.items():
         response += f"{header}: {value}\r\n"
-    if "Connection" in headers and headers["Connection"] == "close":
-        response += "Connection: close\r\n"
-    else:
-        response += "Connection: keep-alive\r\n"
     response += "\r\n"
-    response = response.encode("utf-8")
     if "Content-Encoding" in headers and headers["Content-Encoding"] == "gzip":
         response += content
     else:
