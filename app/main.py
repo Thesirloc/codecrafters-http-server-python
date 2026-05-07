@@ -51,7 +51,7 @@ def get_request(path, headers_dict):
         case ["",""]:
             response = "HTTP/1.1 200 OK\r\n\r\n"
         case ["", "echo", value]:
-            if headers_dict.get("Accept-Encoding") == "gzip":
+            if "gzip" in headers_dict.get("Accept-Encoding").split(", "): 
                 response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\nContent-Encoding: gzip\r\n\r\n{value}"
             else:
                 response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\n\r\n{value}"
