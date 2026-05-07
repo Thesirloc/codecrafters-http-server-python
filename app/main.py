@@ -65,6 +65,8 @@ def get_request(path, headers_dict):
                     "Content-Length": len(compressed_content),
                     "Content-Encoding": "gzip"
                 }
+                print(f"Compressed content: {compressed_content}")
+                print(f"Headers: {headers}")
                 response = status_code, headers, compressed_content
                 # response = f"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {len(value)}\r\nContent-Encoding: gzip\r\n\r\n{value}"
             else:
