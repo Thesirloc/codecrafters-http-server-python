@@ -78,7 +78,10 @@ def get_request(path, headers_dict):
             file_path = os.path.join(root_directory, value)
             if os.path.exists(file_path):
                 status_code = "200 OK"
-                headers = {}
+                headers = {
+                    "Content-Type": "text/plain",
+                    "Content-Length": len(serve_file(file_path))
+                }
                 content = serve_file(file_path)
                 response = status_code, headers, content
             else:
