@@ -142,7 +142,7 @@ def create_response(status_code, headers, content):
     for header, value in headers.items():
         response += f"{header}: {value}\r\n"
     response += f"\r\n{content}"
-    return response.encode("utf-8")
+    return response
 
 if __name__ == "__main__":
     main()
