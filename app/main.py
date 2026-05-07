@@ -38,9 +38,9 @@ def handle_client(connection, address):
     body_dict = {b.split(":", 1)[0].strip(): b.split(":", 1)[1].strip() for b in body_list if ":" in b}
     match method:
         case "GET":
-            response = create_response(get_request(path, headers_dict))
+            response = create_response(*get_request(path, headers_dict))
         case "POST":
-            response = create_response(post_request(path, headers_dict, body_list))
+            response = create_response(*post_request(path, headers_dict, body_list))
         case _:
             response = create_response("405 Method Not Allowed", {}, "")
     connection.sendall(response.encode("utf-8"))
